@@ -1,5 +1,61 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HHH Phone Lottery</title><style>body{background:#000;color:#fff;font-family:sans-serif;text-align:center;padding:15px}textarea{width:95%;height:200px;border-radius:10px;padding:10px;font-size:16px}button{padding:14px;width:95%;margin:6px;border:none;border-radius:10px;font-weight:bold;font-size:16px} .g{background:#00c853;color:#fff}.o{background:orange;color:#000}.b{background:#2962ff;color:#fff}.box{background:#fff;color:#000;padding:12px;border-radius:10px;margin-top:15px;white-space:pre-wrap;text-align:left;font-weight:bold}</style></head><body><h2>HHH Phone Number Lottery</h2><div id="L"><input id="p" type="password" placeholder="Password 3h123" style="padding:12px;width:80%;border-radius:8px"><br><br><button class="g" onclick="if(document.getElementById('p').value=='3h123'){document.getElementById('M').style.display='block';document.getElementById('L').style.display='none'}else{alert('Wrong Password')}">Login</button></div><div id="M" style="display:none"><p>یہاں صرف فون نمبر پیسٹ کریں، ہر لائن میں ایک نمبر</p><textarea id="list" placeholder="03001234567&#10;03151234567&#10;03211234567"></textarea><br><p id="count" style="color:yellow">کل نمبر: 0</p><button class="g" onclick="draw(1,'5000')">5000 کا 1 نمبر نکالو</button><button class="o" onclick="draw(2,'2500')">2500 کے 2 نمبر نکالو</button><button class="b" onclick="draw(100,'100')">100 والے 100 نمبر نکالو</button><div id="res" class="box">Result yahan ayega...</div><button class="g" style="background:#222;color:#fff;margin-top:20px" onclick="save()">WEBSITE PAR SAVE KARO</button></div><script>
-document.getElementById('list').addEventListener('input',()=>{let n=document.getElementById('list').value.split('\n').filter(x=>x.trim()!='');document.getElementById('count').innerText='کل نمبر: '+n.length});
-function draw(c,t){let n=document.getElementById('list').value.split('\n').filter(x=>x.trim()!='');if(n.length<c){alert('نمبر کم ہیں');return}let s=[...n].sort(()=>0.5-Math.random());let w=s.slice(0,c);let txt='--- '+t+' Rs Winners ---\n'+w.join('\n')+'\n\n';document.getElementById('res').innerText+=txt}
-function save(){let data=document.getElementById('res').innerText;localStorage.setItem('hhh_winners',data);alert('Save Ho Gaya! Ab website par show hoga');}
-</script></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Admin - Human Helping Hand</title>
+</head>
+<body>
+<h2>Admin Panel - Human Helping Hand</h2>
+<input id="name" placeholder="Name">
+<input id="phone" placeholder="Phone">
+<button onclick="addUser()">Add Karo</button>
+<button onclick="drawWinner()">Winner Nikalo</button>
+<hr>
+<div id="list">Loading...</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDt-ledtqtU7illD-3gtKrX70nBf4ZsOgo",
+  authDomain: "human-helping-hand.firebaseapp.com",
+  databaseURL: "https://human-helping-hand-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "human-helping-hand",
+  storageBucket: "human-helping-hand.firebasestorage.app",
+  messagingSenderId: "291610402320",
+  appId: "1:291610402320:web:4ad0bc85be37ba35877495",
+  measurementId: "G-XT5CQHB47B"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+window.addUser = function(){
+  const name = document.getElementById('name').value;
+  const phone = document.getElementById('phone').value;
+  if(!name) return alert("Naam likho");
+  push(ref(db, 'participants'), { name, phone, time: Date.now() });
+  document.getElementById('name').value="";
+  document.getElementById('phone').value="";
+}
+window.drawWinner = function(){
+  onValue(ref(db, 'participants'), (snap)=>{
+    const data = snap.val();
+    if(!data) return alert("Koi user nahi");
+    const keys = Object.keys(data);
+    const winner = data[keys[Math.floor(Math.random()*keys.length)]];
+    set(ref(db, 'winner'), winner);
+    alert("Winner: "+winner.name);
+  }, {onlyOnce:true});
+}
+onValue(ref(db, 'participants'), (snap)=>{
+  const data = snap.val();
+  let html = "<h3>Total: "+(data?Object.keys(data).length:0)+"</h3>";
+  for(let k in data){ html += "<p>"+data[k].name+" - "+data[k].phone+"</p>"; }
+  document.getElementById('list').innerHTML = html;
+});
+</script>
+</body>
+</html>
