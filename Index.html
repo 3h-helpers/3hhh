@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Human Helping Hands</title>
+<style>
+body{margin:0;background:#eef6ee;font-family:system-ui}
+.box{max-width:420px;margin:auto;background:#fff;min-height:100vh}
+.top{text-align:center;padding:15px;border-bottom:3px solid #6abf4b}
+.khata{margin:12px;background:linear-gradient(135deg,#1b5e20,#66bb6a);color:#fff;border-radius:14px;padding:14px;text-align:center;line-height:2}
+.pay{margin:12px;background:#fff9c4;border:2px dashed #ff8f00;border-radius:12px;padding:10px;text-align:center;font-weight:bold}
+input{width:90%;margin:5px 5%;padding:13px;border-radius:10px;border:1.5px solid #ccc}
+button{width:90%;margin:8px 5%;padding:13px;border-radius:10px;border:0;color:#fff;font-weight:bold}
+.b1{background:#2e7d32}.b2{background:#1565c0}.b3{background:#e65100}
+.card{background:#f8faf8;margin:8px 5%;padding:10px;border-radius:10px;border:1px solid #ddd;text-align:center}
+.win{border:2px solid #2e7d32;background:#e8f5e9}
+</style>
+</head>
+<body>
+<div class="box">
+<div class="top">
+<h2 style="color:#2e7d32">HUMAN HELPING HANDS</h2>
+<p style="font-size:12px;color:#1a73b8">Hope, Help, Humanity - 10 روپے سسٹم</p>
+</div>
+<div class="khata">
+کل چندہ: <b id="total">0</b> روپے<br>
+مدد (5 روپے): <b id="help">0</b> | قرعہ (5 روپے): <b id="qura">0</b><br>
+<small>15 دن کا قرعہ فنڈ: <span id="qura15">0</span> روپے</small>
+</div>
+<div class="pay">Easypaisa: 0333-8269010<br>10 روپے بھیج کر TRX لکھیں</div>
+<input id="n" placeholder="نام">
+<input id="m" placeholder="موبائل 03xx">
+<input id="t" placeholder="TRX ID">
+<button class="b1" onclick="add()">ویریفائی کر کے پیج لیں</button>
+<div id="msg"></div>
+<hr>
+<div style="text-align:center"><b>🏆 فاتح</b></div>
+<div id="wList"></div>
+<div style="text-align:center"><button class="b3" onclick="doQura()">🎲 قرعہ نکالو</button></div>
+</div>
+<script>
+let users=JSON.parse(localStorage.getItem('hhh_u')||'[]');
+let winners=JSON.parse(localStorage.getItem('hhh_w')||'[]');
+function upd(){
+ document.getElementById('total').innerText=users.length*10;
+ document.getElementById('help').innerText=users.length*5;
+ document.getElementById('qura').innerText=users.length*5;
+ document.getElementById('qura15').innerText=users.filter(u=>Date.now()-u.time<15*24*60*60*1000).length*5;
+}
+function add(){
+ let name=n.value.trim(),ph=m.value.trim(),trx=t.value.trim().toUpperCase();
+ if(!name||!ph||!trx){alert('تینوں خانے بھرو');return;}
+ if(users.find(u=>u.trx===trx)){alert('TRX پہلے استعمال ہو چکا');return;}
+ let no='HHH-'+(1001+users.length);
+ users.push({no,name,phone:ph,trx,date:new Date().toLocaleDateString(),time:Date.now()});
+ localStorage.setItem('hhh_u',JSON.stringify(users));
+ msg.innerHTML='<div class="card win">ہو گیا! پیج: '+no+'</div>';
+ n.value='';m.value='';t.value='';upd();showW();
+}
+function showW(){
+ let h='';if(!winners.length){wList.innerHTML='<div class=card>ابھی کوئی فاتح نہیں</div>';return;}
+ winners.forEach((w,i)=>{h+='<div class="card win">'+(i+1)+'. '+w.no+' - '+w.name+' - '+w.amount+' روپے</div>'});
+ wList.innerHTML=h;
+}
+function doQura(){
+ let pool=users.filter(u=>Date.now()-u.time<15*24*60*60*1000);
+ if(pool.length<2){alert('کم از کم 2 لوگ چاہیے');return;}
+ let win=pool[Math.floor(Math.random()*pool.length)];
+ winners.push({no:win.no,name:win.name,amount:Math.floor(pool.length*5/2)});
+ localStorage.setItem('hhh_w',JSON.stringify(winners));showW();
+}
+upd();showW();
+</script>
+</body>
+</html>
