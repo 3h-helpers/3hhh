@@ -72,5 +72,49 @@ function doQura(){
 }
 upd();showW();
 </script>
+ <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDt-ledtqtU7illD-3gtKrX70nBf4ZsOgo",
+  authDomain: "human-helping-hand.firebaseapp.com",
+  databaseURL: "https://human-helping-hand-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "human-helping-hand",
+  storageBucket: "human-helping-hand.firebasestorage.app",
+  messagingSenderId: "291610402320",
+  appId: "1:291610402320:web:4ad0bc85be37ba35877495",
+  measurementId: "G-XT5CQHB47B"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// Live Participants dikhana
+onValue(ref(db, 'participants'), (snap)=>{
+  const data = snap.val();
+  if(!data) return;
+  let html = "";
+  let i=0;
+  for(let k in data){ i++; html += "<div class='card'>"+i+". "+data[k].name+" - "+data[k].phone+"</div>"; }
+  // Aapke design me jahan list dikhani hai
+  const box = document.querySelector('.khata') || document.getElementById('list') || document.body;
+  // Agar aapke paas koi list div hai to usi me daal dega
+  if(document.getElementById('plist')) document.getElementById('plist').innerHTML = html;
+  else {
+    // try to append
+    let existing = document.querySelector('.khata');
+    if(existing) existing.innerHTML = html;
+  }
+});
+
+// Winner dikhana
+onValue(ref(db, 'winner'), (snap)=>{
+  const w = snap.val();
+  if(w && document.querySelector('.win')){
+    document.querySelector('.win').innerHTML = "Winner: "+w.name+" - "+w.phone;
+  }
+});
+</script>
 </body>
 </html>
